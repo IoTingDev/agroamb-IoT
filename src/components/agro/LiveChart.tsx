@@ -1,12 +1,12 @@
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
-import { SensorReading } from "@/lib/sensorData";
+import { Reading } from "@/hooks/useAgroData";
 
-export const LiveChart = ({ data }: { data: SensorReading[] }) => {
+export const LiveChart = ({ data }: { data: Reading[] }) => {
   const formatted = data.map(d => ({
-    time: new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-    temp: +d.ambientTemp.toFixed(1),
-    humidity: +d.humidity.toFixed(1),
-    soil: +d.soilTemp.toFixed(1),
+    time: new Date(d.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    temp: d.ambient_temp ? +Number(d.ambient_temp).toFixed(1) : null,
+    humidity: d.humidity ? +Number(d.humidity).toFixed(1) : null,
+    soil: d.soil_temp ? +Number(d.soil_temp).toFixed(1) : null,
   }));
 
   return (
@@ -29,18 +29,10 @@ export const LiveChart = ({ data }: { data: SensorReading[] }) => {
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
         <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" fontSize={10} tick={{ fontFamily: 'JetBrains Mono' }} />
         <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tick={{ fontFamily: 'JetBrains Mono' }} />
-        <Tooltip
-          contentStyle={{
-            background: 'hsl(var(--popover))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: '8px',
-            fontSize: '12px',
-            fontFamily: 'JetBrains Mono',
-          }}
-        />
-        <Area type="monotone" dataKey="temp" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#gTemp)" name="T. Aire °C" />
-        <Area type="monotone" dataKey="humidity" stroke="hsl(var(--secondary))" strokeWidth={2} fill="url(#gHum)" name="Humedad %" />
-        <Area type="monotone" dataKey="soil" stroke="hsl(var(--accent))" strokeWidth={2} fill="url(#gSoil)" name="T. Suelo °C" />
+        <Tooltip contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px', fontFamily: 'JetBrains Mono' }} />
+        <Area type="monotone" dataKey="temp" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#gTemp)" name="T. Aire °C" connectNulls />
+        <Area type="monotone" dataKey="humidity" stroke="hsl(var(--secondary))" strokeWidth={2} fill="url(#gHum)" name="Humedad %" connectNulls />
+        <Area type="monotone" dataKey="soil" stroke="hsl(var(--accent))" strokeWidth={2} fill="url(#gSoil)" name="T. Suelo °C" connectNulls />
       </AreaChart>
     </ResponsiveContainer>
   );
