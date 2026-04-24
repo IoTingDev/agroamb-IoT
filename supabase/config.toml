@@ -1,1 +1,8 @@
-project_id = "hrogxwotbpfsyatadyda"
+[functions.ingest-reading]
+verify_jwt = false
+
+[functions.simulate-telemetry]
+verify_jwt = true
+
+[functions.seed-demo]
+verify_jwt = true
