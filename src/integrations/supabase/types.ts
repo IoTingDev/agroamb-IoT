@@ -14,16 +14,314 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alerts: {
+        Row: {
+          created_at: string
+          device_id: string | null
+          farm_id: string
+          id: string
+          is_read: boolean
+          level: Database["public"]["Enums"]["alert_level"]
+          message: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string | null
+          farm_id: string
+          id?: string
+          is_read?: boolean
+          level: Database["public"]["Enums"]["alert_level"]
+          message: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string | null
+          farm_id?: string
+          id?: string
+          is_read?: boolean
+          level?: Database["public"]["Enums"]["alert_level"]
+          message?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alerts_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      devices: {
+        Row: {
+          created_at: string
+          device_code: string
+          device_type: Database["public"]["Enums"]["device_type"]
+          farm_id: string
+          firmware_version: string | null
+          id: string
+          is_online: boolean
+          last_seen: string | null
+          name: string
+          signal_strength: number | null
+        }
+        Insert: {
+          created_at?: string
+          device_code: string
+          device_type: Database["public"]["Enums"]["device_type"]
+          farm_id: string
+          firmware_version?: string | null
+          id?: string
+          is_online?: boolean
+          last_seen?: string | null
+          name: string
+          signal_strength?: number | null
+        }
+        Update: {
+          created_at?: string
+          device_code?: string
+          device_type?: Database["public"]["Enums"]["device_type"]
+          farm_id?: string
+          firmware_version?: string | null
+          id?: string
+          is_online?: boolean
+          last_seen?: string | null
+          name?: string
+          signal_strength?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      farms: {
+        Row: {
+          area_hectares: number | null
+          created_at: string
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          area_hectares?: number | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name: string
+          owner_id: string
+        }
+        Update: {
+          area_hectares?: number | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          organization: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          organization?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          organization?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sensor_readings: {
+        Row: {
+          ambient_temp: number | null
+          device_id: string
+          farm_id: string
+          humidity: number | null
+          id: number
+          luminosity: number | null
+          recorded_at: string
+          soil_temp: number | null
+          solar_power: number | null
+          solar_radiation: number | null
+          wind_direction: number | null
+          wind_speed: number | null
+        }
+        Insert: {
+          ambient_temp?: number | null
+          device_id: string
+          farm_id: string
+          humidity?: number | null
+          id?: number
+          luminosity?: number | null
+          recorded_at?: string
+          soil_temp?: number | null
+          solar_power?: number | null
+          solar_radiation?: number | null
+          wind_direction?: number | null
+          wind_speed?: number | null
+        }
+        Update: {
+          ambient_temp?: number | null
+          device_id?: string
+          farm_id?: string
+          humidity?: number | null
+          id?: number
+          luminosity?: number | null
+          recorded_at?: string
+          soil_temp?: number | null
+          solar_power?: number | null
+          solar_radiation?: number | null
+          wind_direction?: number | null
+          wind_speed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sensor_readings_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sensor_readings_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      thresholds: {
+        Row: {
+          enabled: boolean
+          farm_id: string
+          id: string
+          max_value: number | null
+          min_value: number | null
+          sensor_kind: Database["public"]["Enums"]["sensor_kind"]
+          warning_max: number | null
+          warning_min: number | null
+        }
+        Insert: {
+          enabled?: boolean
+          farm_id: string
+          id?: string
+          max_value?: number | null
+          min_value?: number | null
+          sensor_kind: Database["public"]["Enums"]["sensor_kind"]
+          warning_max?: number | null
+          warning_min?: number | null
+        }
+        Update: {
+          enabled?: boolean
+          farm_id?: string
+          id?: string
+          max_value?: number | null
+          min_value?: number | null
+          sensor_kind?: Database["public"]["Enums"]["sensor_kind"]
+          warning_max?: number | null
+          warning_min?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thresholds_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      alert_level: "info" | "warning" | "critical" | "success"
+      app_role: "admin" | "tecnico" | "cliente"
+      device_type:
+        | "gateway"
+        | "ambiental"
+        | "suelo"
+        | "viento"
+        | "solar"
+        | "luminosidad"
+      sensor_kind:
+        | "ambient_temp"
+        | "humidity"
+        | "soil_temp"
+        | "wind_speed"
+        | "solar_radiation"
+        | "solar_power"
+        | "luminosity"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +448,26 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      alert_level: ["info", "warning", "critical", "success"],
+      app_role: ["admin", "tecnico", "cliente"],
+      device_type: [
+        "gateway",
+        "ambiental",
+        "suelo",
+        "viento",
+        "solar",
+        "luminosidad",
+      ],
+      sensor_kind: [
+        "ambient_temp",
+        "humidity",
+        "soil_temp",
+        "wind_speed",
+        "solar_radiation",
+        "solar_power",
+        "luminosity",
+      ],
+    },
   },
 } as const
