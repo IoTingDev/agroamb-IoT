@@ -48,7 +48,7 @@ const Configuracion = () => {
     for (const t of Object.values(thresholds)) {
       const payload = { ...t, farm_id: activeFarmId };
       if (t.id) await supabase.from('thresholds').update(payload).eq('id', t.id);
-      else await supabase.from('thresholds').insert(payload as any);
+      else await (supabase.from('thresholds') as any).insert(payload);
     }
     toast.success("Umbrales guardados");
   };
