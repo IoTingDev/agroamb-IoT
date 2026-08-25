@@ -10,23 +10,38 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
 const ResetPassword = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [ready, setReady] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.replace(/^#/, ""));
-    const type = params.get("type");
-    if (type === "recovery") {
-      setReady(true);
-    }
-  }, []);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
+      if (event === "PASSWORD_RECOVERY" || sess) {
+        setReady(true);
+        setChecking(false);
+      }
+    });
 
-  if (user) return <Navigate to="/" replace />;
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const query = new URLSearchParams(window.location.search);
+    const isRecoveryLink =
+      hash.get("type") === "recovery" ||
+      query.get("type") === "recovery" ||
+      !!query.get("code") ||
+      !!hash.get("access_token");
+
+    const timer = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setReady(!!session || isRecoveryLink);
+      setChecking(false);
+    }, 800);
+
+    return () => { subscription.unsubscribe(); clearTimeout(timer); };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,11 +59,13 @@ const ResetPassword = () => {
     if (error) {
       toast.error(error.message);
     } else {
+      setDone(true);
       toast.success("Contraseña actualizada correctamente");
       await supabase.auth.signOut();
-      navigate("/auth");
+      setTimeout(() => navigate("/auth", { replace: true }), 800);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative">
