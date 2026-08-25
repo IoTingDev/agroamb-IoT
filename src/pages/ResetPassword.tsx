@@ -1,32 +1,47 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Leaf, Loader2, Lock, ArrowLeft } from "lucide-react";
+import { Leaf, Loader2, Lock, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+
 
 const ResetPassword = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [ready, setReady] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.replace(/^#/, ""));
-    const type = params.get("type");
-    if (type === "recovery") {
-      setReady(true);
-    }
-  }, []);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
+      if (event === "PASSWORD_RECOVERY" || sess) {
+        setReady(true);
+        setChecking(false);
+      }
+    });
 
-  if (user) return <Navigate to="/" replace />;
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const query = new URLSearchParams(window.location.search);
+    const isRecoveryLink =
+      hash.get("type") === "recovery" ||
+      query.get("type") === "recovery" ||
+      !!query.get("code") ||
+      !!hash.get("access_token");
+
+    const timer = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setReady(!!session || isRecoveryLink);
+      setChecking(false);
+    }, 800);
+
+    return () => { subscription.unsubscribe(); clearTimeout(timer); };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,11 +59,13 @@ const ResetPassword = () => {
     if (error) {
       toast.error(error.message);
     } else {
+      setDone(true);
       toast.success("Contraseña actualizada correctamente");
       await supabase.auth.signOut();
-      navigate("/auth");
+      setTimeout(() => navigate("/auth", { replace: true }), 800);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative">
@@ -70,7 +87,19 @@ const ResetPassword = () => {
         </div>
 
         <div className="glass-card rounded-2xl p-6">
-          {!ready ? (
+          {checking ? (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Validando enlace de recuperación…</p>
+            </div>
+          ) : done ? (
+            <div className="text-center space-y-4 py-6">
+              <CheckCircle2 className="w-8 h-8 text-primary mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                Tu contraseña fue actualizada. Inicia sesión con la nueva contraseña.
+              </p>
+            </div>
+          ) : !ready ? (
             <div className="text-center space-y-4 py-4">
               <p className="text-sm text-muted-foreground">
                 El enlace de recuperación no es válido o ha expirado.
