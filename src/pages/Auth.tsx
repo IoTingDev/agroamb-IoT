@@ -98,6 +98,13 @@ const Auth = () => {
                 <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-secondary text-background hover:opacity-90">
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Acceder al panel"}
                 </Button>
+                <button
+                  type="button"
+                  onClick={() => { setForgot(true); setForgotSent(false); }}
+                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors text-right"
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
               </form>
             </TabsContent>
 
