@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Leaf, Loader2, Lock, ArrowLeft } from "lucide-react";
+import { Leaf, Loader2, Lock, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+
 
 const ResetPassword = () => {
   const navigate = useNavigate();
