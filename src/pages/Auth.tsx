@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Leaf, Loader2, Mail, Lock, Building2, User } from "lucide-react";
+import { Leaf, Loader2, Mail, Lock, Building2, User, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -17,6 +18,8 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [organization, setOrganization] = useState("");
+  const [forgot, setForgot] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
 
   if (user) return <Navigate to="/" replace />;
 
@@ -36,6 +39,17 @@ const Auth = () => {
     setLoading(false);
     if (error) toast.error(error);
     else { toast.success("Cuenta creada. Bienvenido a AgroSense 4.0"); navigate("/"); }
+  };
+
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) toast.error(error.message);
+    else { setForgotSent(true); toast.success("Correo de recuperación enviado"); }
   };
 
   return (
@@ -59,6 +73,51 @@ const Auth = () => {
         </div>
 
         <div className="glass-card rounded-2xl p-6">
+          {forgot ? (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForgot(false)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <h2 className="font-display font-semibold text-lg">Recuperar contraseña</h2>
+              </div>
+              {forgotSent ? (
+                <div className="text-center space-y-4 py-4">
+                  <p className="text-sm text-muted-foreground">
+                    Te enviamos un enlace de recuperación a <span className="text-foreground font-medium">{email}</span>.
+                    Revisa tu correo para restablecer tu contraseña.
+                  </p>
+                  <Button
+                    onClick={() => { setForgot(false); setForgotSent(false); }}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Volver al inicio de sesión
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleForgot} className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Ingresa tu email corporativo y te enviaremos un enlace para restablecer tu contraseña.
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="fp-email">Email corporativo</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input id="fp-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} className="pl-9" placeholder="usuario@empresa.com" />
+                    </div>
+                  </div>
+                  <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-secondary text-background hover:opacity-90">
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enviar enlace de recuperación"}
+                  </Button>
+                </form>
+              )}
+            </div>
+          ) : (
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid grid-cols-2 w-full mb-6">
               <TabsTrigger value="signin">Iniciar sesión</TabsTrigger>
@@ -84,6 +143,13 @@ const Auth = () => {
                 <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-secondary text-background hover:opacity-90">
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Acceder al panel"}
                 </Button>
+                <button
+                  type="button"
+                  onClick={() => { setForgot(true); setForgotSent(false); }}
+                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors text-right"
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
               </form>
             </TabsContent>
 
@@ -123,6 +189,7 @@ const Auth = () => {
               </form>
             </TabsContent>
           </Tabs>
+          )}
         </div>
         <p className="text-center text-[10px] font-mono text-muted-foreground/60 mt-6">
           AGROSENSE 4.0 · DEMO COMERCIAL · v1.0
