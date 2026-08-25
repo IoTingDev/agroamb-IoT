@@ -41,6 +41,17 @@ const Auth = () => {
     else { toast.success("Cuenta creada. Bienvenido a AgroSense 4.0"); navigate("/"); }
   };
 
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) toast.error(error.message);
+    else { setForgotSent(true); toast.success("Correo de recuperación enviado"); }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative">
       {/* Decorative background */}
