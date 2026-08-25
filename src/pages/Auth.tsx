@@ -73,6 +73,51 @@ const Auth = () => {
         </div>
 
         <div className="glass-card rounded-2xl p-6">
+          {forgot ? (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForgot(false)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <h2 className="font-display font-semibold text-lg">Recuperar contraseña</h2>
+              </div>
+              {forgotSent ? (
+                <div className="text-center space-y-4 py-4">
+                  <p className="text-sm text-muted-foreground">
+                    Te enviamos un enlace de recuperación a <span className="text-foreground font-medium">{email}</span>.
+                    Revisa tu correo para restablecer tu contraseña.
+                  </p>
+                  <Button
+                    onClick={() => { setForgot(false); setForgotSent(false); }}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Volver al inicio de sesión
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleForgot} className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Ingresa tu email corporativo y te enviaremos un enlace para restablecer tu contraseña.
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="fp-email">Email corporativo</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input id="fp-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} className="pl-9" placeholder="usuario@empresa.com" />
+                    </div>
+                  </div>
+                  <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-secondary text-background hover:opacity-90">
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enviar enlace de recuperación"}
+                  </Button>
+                </form>
+              )}
+            </div>
+          ) : (
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid grid-cols-2 w-full mb-6">
               <TabsTrigger value="signin">Iniciar sesión</TabsTrigger>
