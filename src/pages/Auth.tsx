@@ -189,6 +189,7 @@ const Auth = () => {
               </form>
             </TabsContent>
           </Tabs>
+          )}
         </div>
         <p className="text-center text-[10px] font-mono text-muted-foreground/60 mt-6">
           AGROSENSE 4.0 · DEMO COMERCIAL · v1.0
