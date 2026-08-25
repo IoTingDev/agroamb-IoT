@@ -87,7 +87,19 @@ const ResetPassword = () => {
         </div>
 
         <div className="glass-card rounded-2xl p-6">
-          {!ready ? (
+          {checking ? (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Validando enlace de recuperación…</p>
+            </div>
+          ) : done ? (
+            <div className="text-center space-y-4 py-6">
+              <CheckCircle2 className="w-8 h-8 text-primary mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                Tu contraseña fue actualizada. Inicia sesión con la nueva contraseña.
+              </p>
+            </div>
+          ) : !ready ? (
             <div className="text-center space-y-4 py-4">
               <p className="text-sm text-muted-foreground">
                 El enlace de recuperación no es válido o ha expirado.
