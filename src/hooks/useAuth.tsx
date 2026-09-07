@@ -36,18 +36,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session: sess } }) => {
-      setSession(sess);
-      setUser(sess?.user ?? null);
-      setLoading(false);
+    const DEMO_EMAIL = "demo@agrosense.app";
+    const DEMO_PASSWORD = "AgroSense4.0-Demo";
+
+    const ensureSession = async () => {
+      const { data: { session: sess } } = await supabase.auth.getSession();
       if (sess?.user) {
-        supabase.from("user_roles").select("role").eq("user_id", sess.user.id).maybeSingle()
-          .then(({ data }) => setRole((data?.role as AppRole) ?? "cliente"));
+        setSession(sess);
+        setUser(sess.user);
+        setLoading(false);
+        const { data } = await supabase.from("user_roles").select("role").eq("user_id", sess.user.id).maybeSingle();
+        setRole((data?.role as AppRole) ?? "cliente");
+        return;
       }
-    });
+      // Acceso directo: sesión demo automática
+      let res = await supabase.auth.signInWithPassword({ email: DEMO_EMAIL, password: DEMO_PASSWORD });
+      if (res.error) {
+        await supabase.auth.signUp({
+          email: DEMO_EMAIL,
+          password: DEMO_PASSWORD,
+          options: { data: { full_name: "Usuario Demo", organization: "AgroSense" } },
+        });
+        res = await supabase.auth.signInWithPassword({ email: DEMO_EMAIL, password: DEMO_PASSWORD });
+      }
+      setSession(res.data?.session ?? null);
+      setUser(res.data?.user ?? null);
+      setLoading(false);
+    };
+
+    ensureSession();
 
     return () => subscription.unsubscribe();
   }, []);
+
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
